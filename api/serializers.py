@@ -12,30 +12,9 @@ from rest_framework.exceptions import APIException
 
 class TokenPairSerializer(TokenObtainPairSerializer):
 
-	def check_user_mail(self,email,password):
-		try:
-			user = User.objects.get(email=email)
-			if user.check_password(raw_password=password):
-				return user
-			return None
-		except User.DoesNotExist :
-			return None
-		except MultipleObjectsReturned:
-			return None
 
 	def validate(self, attrs):
-		query = self.context['request'].data
-		username=""
-		if "@" in attrs['username']:
-			username=self.check_user_mail(email=attrs['username'], password=attrs['password'])
-			if username:
-				attrs['username']=username.username
 		data = super(TokenPairSerializer, self).validate(attrs)
-
-		if "pin" not in query:
-			data['groups'] = [group.name for group in self.user.groups.all()]
-		else:
-			data['groups'] = ["Eleve"]
 		data['id'] = self.user.id
 		data['is_admin'] = self.user.is_superuser
 		data['username'] = self.user.username
@@ -43,33 +22,9 @@ class TokenPairSerializer(TokenObtainPairSerializer):
 		data['last_name'] = self.user.last_name
 
 		if self.user.is_superuser:
-			print("inside")
-			data['professeurs'] = Professeur.objects.all().count()
+			data['Personnels'] = Personnel.objects.all().count()
 			data['eleves'] = Eleve.objects.all().count()
-			data['exercices'] = Exercice.objects.all().count()
-			data['parents'] = Parent.objects.all().count()
-			data['reponses'] = ReponseEleve.objects.all().count()
-
-
-		if self.user.groups.filter(name__contains ="Professeur"):
-			prof = Professeur.objects.get(user = self.user)
-			data["prof"] = prof.id
-
-		if self.user.groups.filter(name__contains ="Parent") and "pin" not in query:
-			parent = Parent.objects.get(user=self.user)
-			data["parent_id"] = parent.id
-			data["enfants"] = EleveSerializer(Eleve.objects.filter(parent=parent),many=True).data
-
-		if self.user.groups.filter(name__contains ="Eleve") and "pin" not in query:
-			eleve = Eleve.objects.get(user=self.user)
-			data["current_student"] = EleveSerializer(eleve, many=False).data
-			data["complete"] = eleve.complete()
-
-		if("pin" in query):
-			current_student = Eleve.objects.filter(pin=query["pin"])
-			if(len(current_student)>0):
-				data["current_student"] = EleveSerializer(current_student[0], many=False).data
-				data["complete"] = current_student[0].complete()
+			
 		return data
 
 
@@ -77,12 +32,6 @@ class GroupSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Group
-		fields = "__all__"
-
-class ParentSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = Parent
 		fields = "__all__"
 
 class PasswordResetSerializer(serializers.Serializer):
@@ -122,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
 			}
 		}
 
-class ProfesseurSerializer(serializers.ModelSerializer):
+class PersonnelSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
 		user = User.objects.get(id=instance.user.id)
@@ -138,7 +87,7 @@ class ProfesseurSerializer(serializers.ModelSerializer):
 		return representation
 	user = UserSerializer()
 	class Meta:
-		model = Professeur
+		model = Personnel
 		fields = '__all__'
 
 	@transaction.atomic()
@@ -178,20 +127,6 @@ class EleveSerializer(serializers.ModelSerializer):
 		read_only_fields = 'pin',
 		fields = '__all__'
 		
-class CycleSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		niveau = NiveauSerializer(instance.niveau, many=False).data
-		representation['niveau'] = {
-			'id': niveau.get('id'),
-			'nom': niveau.get('nom'),
-		}
-		return representation
-	class Meta:
-		model = Cycle
-		fields = '__all__'
-		
-
 class NiveauSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Niveau
@@ -228,116 +163,3 @@ class ClasseSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Classe
 		fields = '__all__'
-
-class CourSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super(CourSerializer, self).to_representation(instance)
-		representation['classe']=ClasseSerializer(instance.classe,many=False).data 
-		representation['professeur']=ProfesseurSerializer(instance.professeur,many=False).data
-		representation['nb_chapitres']=Chapitre.objects.filter(cour=instance.id).count()
-		representation['nb_formules']=Formules.objects.filter(cour=instance.id).count()
-		 
-		return representation
-	class Meta:
-		model = Cour
-		fields = '__all__'
-
-class FormulesSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		course=CourSerializer(instance.cour,many=False).data
-		representation["cour"] = f"""
-			{course['nom']}
-			{course['classe']['nom']}
-			{course['classe']['niveau']['nom']}
-			Section : {course['classe']['section']['nom']}
-		"""
-		return representation
-	class Meta:
-		model = Formules
-		fields = "__all__"
-
-class EpreuvesTypesSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		course=CourSerializer(instance.cour,many=False).data
-		representation["cour"] = f"""
-			{course['nom']}
-			{course['classe']['nom']}
-			{course['classe']['niveau']['nom']}
-			Section : {course['classe']['section']['nom']}
-		"""
-		return representation
-	class Meta:
-		model = EpreuvesTypes
-		fields = "__all__"
-
-class ChapitreSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super(ChapitreSerializer, self).to_representation(instance)
-		representation['cour'] = CourSerializer(instance.cour, many=False).data
-		representation['nb_exercices'] = Exercice.objects.filter(chapitre=instance.id).count()
-		return representation
-	class Meta:
-		model = Chapitre
-		fields = '__all__'
-
-class ExerciceSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['chapitre'] = ChapitreSerializer(
-			instance.chapitre, many=False).data
-		return representation
-	class Meta:
-		model = Exercice
-		fields = '__all__'
-
-class ReponseEleveSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ReponseEleve
-		fields = '__all__'
-		depth=1
-
-class CoursSpeciauxSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = CoursSpeciaux
-		fields = '__all__'
-
-class ChapitresCSPSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['cour'] = CoursSpeciauxSerializer(
-			instance.cour, many=False).data
-		return representation
-	class Meta:
-		model = ChapitresCSP
-		fields = '__all__'
-
-class ExerciceCSPSerializer(serializers.ModelSerializer):
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['chapitre'] = ChapitresCSPSerializer(
-			instance.chapitre, many=False).data
-		return representation
-	class Meta:
-		model = ExerciceCSP
-		fields = '__all__'
-
-class ReponseCSPSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = ReponseCSP
-		fields = '__all__'
-		depth=1
-
-class AbonnementsSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Abonnements
-		fields = '__all__'
-
-class CategorieSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Categorie
-		fields = '__all__'
-
-
-
