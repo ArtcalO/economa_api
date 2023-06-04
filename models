@@ -1,0 +1,23 @@
+niveau:
+    id
+    nom
+    date
+class:
+    id
+    niveau
+    nom
+    date
+
+cour:
+    id
+    class
+    nom
+    description
+    date
+
+chapitre:
+    id
+    cour
+    resume
+    note
+    date

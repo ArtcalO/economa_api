@@ -1,0 +1,14 @@
+	Django
+django-cors-headers
+django-filter
+djangorestframework
+djangorestframework-simplejwt
+Pillow
+whitenoise
+
+
+info@igatechburundi.com
+OZxXv-t}SMl#
+
+arnaud@igatechburundi.com
+fP63F(kl%RS[
