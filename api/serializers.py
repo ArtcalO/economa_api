@@ -108,23 +108,11 @@ class PersonnelSerializer(serializers.ModelSerializer):
 class EleveSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
-		if(instance.user):
-			user = User.objects.get(id=instance.user.id)
-			group = [group.name for group in user.groups.all()]
-			representation['user'] = {
-				'id': user.id,
-				'username': user.username,
-				'first_name': user.first_name,
-				'last_name': user.last_name,
-				'groups': group
-			}
 		if(instance.classe):
 			representation["classe"]=ClasseSerializer(instance.classe, many=False).data
 		return representation
-	user = UserSerializer()
 	class Meta:
 		model = Eleve
-		read_only_fields = 'pin',
 		fields = '__all__'
 		
 class NiveauSerializer(serializers.ModelSerializer):
