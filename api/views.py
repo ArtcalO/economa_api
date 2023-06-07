@@ -69,15 +69,15 @@ class PersonnelViewSet(viewsets.ModelViewSet):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 		data = serializer.validated_data
-		telephone = serializer.validated_data['telephone']
-		genre = serializer.validated_data['genre']
-		user_serial = serializer.validated_data['user']
+		telephone = data['telephone']
+		genre = data['genre']
+		user_serial = data['user']
 		user = User(
 			username=user_serial['username'],
 			first_name=user_serial['first_name'],
 			last_name=user_serial['last_name'],
 		)
-		user.set_password(serializer.validated_data['user']['password'])
+		user.set_password(request.data['user']['password'])
 		professeur:Personnel = Personnel(
 			user = user,
 			telephone = telephone,
