@@ -16,6 +16,7 @@ class TokenPairSerializer(TokenObtainPairSerializer):
 	def validate(self, attrs):
 		data = super(TokenPairSerializer, self).validate(attrs)
 		data['id'] = self.user.id
+		data['groups'] = [group.name for group in self.user.groups.all()]
 		data['is_admin'] = self.user.is_superuser
 		data['username'] = self.user.username
 		data['first_name'] = self.user.first_name
