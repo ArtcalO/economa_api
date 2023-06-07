@@ -98,32 +98,27 @@ class EleveViewSet(viewsets.ModelViewSet):
 	serializer_class = EleveSerializer
 	queryset = Eleve.objects.all().order_by('-id')
 	filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-	filterset_fields = {"parent":['exact'],"user":['exact']}
-	search_fields = ["parent","user"]
+	filterset_fields = {"classe":['exact'],}
+	search_fields = ["classe"]
 
 	@transaction.atomic()
 	def create(self, request):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 		data = serializer.validated_data
-		telephone = serializer.validated_data['telephone']
+		nom = serializer.validated_data['nom']
+		prenom = serializer.validated_data['prenom']
 		genre = serializer.validated_data['genre']
-		user_serial = serializer.validated_data['user']
-		user = User(
-			username=user_serial['username'],
-			first_name=user_serial['first_name'],
-			last_name=user_serial['last_name']
-		)
-		user.set_password(serializer.validated_data['user']['password'])
+		classe:Classe = serializer.validated_data['classe']
+		date_naissance = serializer.validated_data['date_naissance']
+		
 		eleve:Eleve = Eleve(
-			user = user,
-			telephone = telephone,
-			genre = genre
+			nom=nom,
+			prenom=prenom,
+			genre=genre,
+			classe=classe,
+			date_naissance=date_naissance,
 			)
-		user.save()
-		group = Group.objects.get_or_create(name='Eleve')
-		user.groups.add(group[0])
-		user.save()
 		eleve.save()
 		serializer = EleveSerializer(
 			eleve, many=False, context={"request": request})
