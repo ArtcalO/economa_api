@@ -152,3 +152,12 @@ class ClasseSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Classe
 		fields = '__all__'
+
+class EntreeSerializer(serializers.ModelSerializer):
+	def to_representation(self, instance):
+		representation = super().to_representation(instance)
+		user = UserSerializer(instance.user, many=False).data
+		return representation
+	class Meta:
+		model = Entree
+		fields = '__all__'

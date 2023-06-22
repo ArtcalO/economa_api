@@ -11,6 +11,7 @@ router.register("niveaux", NiveauViewSet)
 router.register("sections", SectionViewSet)
 router.register("classes", ClasseViewSet)
 router.register("eleves", EleveViewSet)
+router.register("entrees", EntreeViewSet)
 
 
 

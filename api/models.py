@@ -1,6 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class TYPES_ENTREES(models.IntegerChoices):
+    AUTRES = 0
+    BUDGET_MINISTRE = 1
+    LOCATION_SALLE = 2
+    LOCATION_TERRAIN = 3
+    LOCATION_CHAMP = 4
+    LOCATION_ATELIER = 5
+    PAIEMENT_MINERVAL = 6
+
 class Personnel(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, related_name='user_personnel',
@@ -59,3 +68,14 @@ class Eleve(models.Model):
 
     def __str__(self):
         return self.nom
+
+class Entree(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
+    type_entree = models.IntegerField(default=-1, choices=TYPES_ENTREES.choices)
+    montant = models.CharField(max_length=150, null=True, blank=True)
+    details = models.CharField(max_length = 20,null=True,blank=True)
+    date = models.DateField(auto_now_add = True)
+
+    def __str__(self):
+        return self.details

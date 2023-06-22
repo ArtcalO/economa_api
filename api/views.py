@@ -206,31 +206,36 @@ class ClasseViewSet(viewsets.ModelViewSet):
 		'nom'
 	]
 
-	# @transaction.atomic()
-	# def create(self, request):
-	# 	serializer = self.get_serializer(data=request.data)
-	# 	serializer.is_valid(raise_exception=True)
-	# 	data = serializer.validated_data
-	# 	nom = data['nom']
-	# 	section:Section = data['section']
-	# 	cycle:Cycle = data['cycle']
-	# 	user = request.user
-	# 	classe: Classe = Classe(
-	# 			nom=nom,
-	# 			user=user
-	# 		)
-	# 	if section:
-	# 		niveau:Niveau = section.niveau
-	# 		classe.niveau = niveau
-	# 		classe.section = section
-	# 		classe.save()
-	# 	if cycle:
-	# 		niveau:Niveau = cycle.niveau
-	# 		classe.niveau = niveau
-	# 		classe.cycle = cycle
-	# 		classe.save()
-	# 	serializer = ClasseSerializer(
-	# 		classe, many=False, context={"request": request})
-	# 	return Response(serializer.data, 201)
+class EntreeViewSet(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	serializer_class = EntreeSerializer
+	queryset = Entree.objects.all().order_by('id')
+	filter_backends = [DjangoFilterBackend,]
+	filterset_fields = [
+		'entree_type',
+		'user',
+		'id',
+		'montant'
+	]
 
-
+	@transaction.atomic()
+	def create(self, request):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		data = serializer.validated_data
+		type_entree = data['type_entree']
+		montant = data['montant']
+		details = data['details']
+		user = request.user
+		entree: Entree = Entree(
+			user=user,
+			type_entree=type_entree,
+			montant=montant,
+			details=details
+		)
+		entree.save()
+		serializer = EntreeSerializer(
+			entree, many=False, context={"request": request})
+		return Response(serializer.data, 201)
+	
