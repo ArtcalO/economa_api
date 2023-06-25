@@ -19,7 +19,7 @@ class Personnel(models.Model):
     date = models.DateField(auto_now_add = True)
 
     def __str__(self):
-        return f"{self.user.first_name}"
+        return f"{self.telephone} {self.genre}"
 
 class Niveau(models.Model):
     id = models.BigAutoField(primary_key=True)
