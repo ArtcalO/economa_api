@@ -213,7 +213,7 @@ class EntreeViewSet(viewsets.ModelViewSet):
 	queryset = Entree.objects.all().order_by('id')
 	filter_backends = [DjangoFilterBackend,]
 	filterset_fields = [
-		'entree_type',
+		'type_entree',
 		'user',
 		'id',
 		'montant'
