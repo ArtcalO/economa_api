@@ -223,7 +223,7 @@ class EntreeViewSet(viewsets.ModelViewSet):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 		data = serializer.validated_data
-		type_entree = data['type_entree']
+		type_entree = int(data['type_entree'])
 		montant = data['montant']
 		details = data['details']
 		user = request.user
@@ -234,6 +234,27 @@ class EntreeViewSet(viewsets.ModelViewSet):
 			details=details
 		)
 		entree.save()
+
+		if(type_entree in range(2,6)):
+			extra_data = request.data
+			nom = extra_data.get('nom')
+			prenom = extra_data.get('prenom')
+			telephone = extra_data.get('telephone')
+			adresse = extra_data.get('adresse')
+			cni = extra_data.get('cni')
+			date_debut = extra_data.get('date_debut')
+			date_fin = extra_data.get('date_fin')
+
+			DetailsEntreeLocation(
+				entree = entree,
+				nom = nom,
+				prenom = prenom,
+				telephone = telephone,
+				adresse = adresse,
+				cni = cni,
+				date_debut = date_debut,
+				date_fin = date_fin,
+				).save()
 		serializer = EntreeSerializer(
 			entree, many=False, context={"request": request})
 		return Response(serializer.data, 201)	
