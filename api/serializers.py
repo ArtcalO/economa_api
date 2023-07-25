@@ -71,6 +71,10 @@ class UserSerializer(serializers.ModelSerializer):
 				'validators': [UnicodeUsernameValidator()]
 			}
 		}
+class UserEntreeSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = "id","first_name", "last_name",
 
 class PersonnelSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
@@ -156,8 +160,18 @@ class ClasseSerializer(serializers.ModelSerializer):
 class EntreeSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
-		user = UserSerializer(instance.user, many=False).data
+		representation['user'] = UserEntreeSerializer(instance.user, many=False).data
 		return representation
 	class Meta:
 		model = Entree
+		fields = '__all__'
+
+class DetailsEntreeLocationSerializer(serializers.ModelSerializer):
+	def to_representation(self, instance):
+		representation = super().to_representation(instance)
+		representation['entree'] = EntreeSerializer(instance.entree, many=False).data
+		return representation
+		
+	class Meta:
+		model = DetailsEntreeLocation
 		fields = '__all__'

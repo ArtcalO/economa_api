@@ -212,12 +212,11 @@ class EntreeViewSet(viewsets.ModelViewSet):
 	serializer_class = EntreeSerializer
 	queryset = Entree.objects.all().order_by('id')
 	filter_backends = [DjangoFilterBackend,]
-	filterset_fields = [
-		'type_entree',
-		'user',
-		'id',
-		'montant'
-	]
+	filterset_fields = {
+		'type_entree':['exact'],
+		'date': ['gte', 'lte'],
+		'user':['exact']
+	}
 
 	@transaction.atomic()
 	def create(self, request):
@@ -237,5 +236,15 @@ class EntreeViewSet(viewsets.ModelViewSet):
 		entree.save()
 		serializer = EntreeSerializer(
 			entree, many=False, context={"request": request})
-		return Response(serializer.data, 201)
-	
+		return Response(serializer.data, 201)	
+
+class DetailsEntreeLocationViewSet(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	serializer_class = DetailsEntreeLocationSerializer
+	queryset = DetailsEntreeLocation.objects.all().order_by('id')
+	filter_backends = [DjangoFilterBackend,]
+	filterset_fields = {
+		'entree':['exact'],
+		'date': ['gte', 'lte']
+	}

@@ -79,3 +79,15 @@ class Entree(models.Model):
 
     def __str__(self):
         return self.details
+
+class DetailsEntreeLocation(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    entree = models.ForeignKey(Entree, editable=False, on_delete=models.CASCADE)
+    nom = models.CharField(max_length=150, null=True, blank=True)
+    prenom = models.CharField(max_length=150, null=True, blank=True)
+    telephone = models.CharField(max_length = 20,null=True,blank=True)
+    adresse = models.CharField(max_length=150, null=True, blank=True)
+    cni = models.CharField(max_length=150, null=True, blank=True)
+    date_debut = models.DateField()
+    date_fin = models.DateField()
+    date = models.DateTimeField(auto_now=True)
