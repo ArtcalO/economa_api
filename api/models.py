@@ -10,6 +10,13 @@ class TYPES_ENTREES(models.IntegerChoices):
     LOCATION_ATELIER = 5
     PAIEMENT_MINERVAL = 6
 
+class TYPES_SORTIES(models.IntegerChoices):
+    AUTRES = 0
+    RATION = 1
+    MAIN_OEUVRES = 2
+    EQUIPEMENTS_ATELIERS = 3
+    EVENEMENTS = 4
+
 class Personnel(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(User, related_name='user_personnel',
@@ -91,3 +98,15 @@ class DetailsEntreeLocation(models.Model):
     date_debut = models.DateField()
     date_fin = models.DateField()
     date = models.DateTimeField(auto_now=True)
+
+
+class Sortie(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
+    type_sortie = models.IntegerField(default=-1, choices=TYPES_SORTIES.choices)
+    montant = models.CharField(max_length=150, null=True, blank=True)
+    details = models.CharField(max_length = 20,null=True,blank=True)
+    date = models.DateField(auto_now_add = True)
+
+    def __str__(self):
+        return self.details

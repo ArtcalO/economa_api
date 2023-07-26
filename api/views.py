@@ -269,3 +269,35 @@ class DetailsEntreeLocationViewSet(viewsets.ModelViewSet):
 		'entree':['exact'],
 		'date': ['gte', 'lte']
 	}
+
+class SortieViewSet(viewsets.ModelViewSet):
+	authentication_classes = [SessionAuthentication, JWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	serializer_class = SortieSerializer
+	queryset = Sortie.objects.all().order_by('id')
+	filter_backends = [DjangoFilterBackend,]
+	filterset_fields = {
+		'type_sortie':['exact'],
+		'date': ['gte', 'lte'],
+		'user':['exact']
+	}
+
+	@transaction.atomic()
+	def create(self, request):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		data = serializer.validated_data
+		type_sortie = int(data['type_sortie'])
+		montant = data['montant']
+		details = data['details']
+		user = request.user
+		sortie: Sortie = Sortie(
+			user=user,
+			type_sortie=type_sortie,
+			montant=montant,
+			details=details
+		)
+		sortie.save()
+		serializer = SortieSerializer(
+			sortie, many=False, context={"request": request})
+		return Response(serializer.data, 201)	

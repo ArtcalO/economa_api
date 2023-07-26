@@ -172,6 +172,7 @@ class EntreeSerializer(serializers.ModelSerializer):
 		model = Entree
 		fields = '__all__'
 
+
 class DetailsEntreeLocationSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
 		representation = super().to_representation(instance)
@@ -186,3 +187,13 @@ class DetailsEntreeLocationSerializerMin(serializers.ModelSerializer):
 	class Meta:
 		model = DetailsEntreeLocation
 		fields = "id","nom","prenom","telephone","adresse","cni","date_debut","date_fin","date"
+
+class SortieSerializer(serializers.ModelSerializer):
+	def to_representation(self, instance):
+		representation = super().to_representation(instance)
+		representation['user'] = UserEntreeSerializer(instance.user, many=False).data
+		return representation
+
+	class Meta:
+		model = Sortie
+		fields = '__all__'

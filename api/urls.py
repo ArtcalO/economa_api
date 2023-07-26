@@ -12,9 +12,8 @@ router.register("sections", SectionViewSet)
 router.register("classes", ClasseViewSet)
 router.register("eleves", EleveViewSet)
 router.register("entrees", EntreeViewSet)
+router.register("sorties", SortieViewSet)
 router.register("det-ent-locations", DetailsEntreeLocationViewSet)
-
-
 
 urlpatterns = [
 	path('', include(router.urls)),
