@@ -159,8 +159,14 @@ class ClasseSerializer(serializers.ModelSerializer):
 
 class EntreeSerializer(serializers.ModelSerializer):
 	def to_representation(self, instance):
-		representation = super().to_representation(instance)
+		representation = super(EntreeSerializer,self).to_representation(instance)
 		representation['user'] = UserEntreeSerializer(instance.user, many=False).data
+		if(instance.type_entree in range(2,6)):
+			try:
+				entree = DetailsEntreeLocation.objects.get(entree=instance.id)
+				representation["detailsEntree"]=DetailsEntreeLocationSerializerMin(entree,many=False).data
+			except:
+				pass
 		return representation
 	class Meta:
 		model = Entree
@@ -175,3 +181,8 @@ class DetailsEntreeLocationSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DetailsEntreeLocation
 		fields = '__all__'
+
+class DetailsEntreeLocationSerializerMin(serializers.ModelSerializer):	
+	class Meta:
+		model = DetailsEntreeLocation
+		fields = "id","nom","prenom","telephone","adresse","cni","date_debut","date_fin","date"
