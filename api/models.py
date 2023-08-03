@@ -9,6 +9,9 @@ class TYPES_ENTREES(models.IntegerChoices):
     LOCATION_CHAMP = 4
     LOCATION_ATELIER = 5
     PAIEMENT_MINERVAL = 6
+    CARTE_ETUDIANT = 7
+    CACHE_POUSSIERE = 8
+    CARNET_JOURNAL = 9
 
 class TYPES_SORTIES(models.IntegerChoices):
     AUTRES = 0
@@ -75,6 +78,18 @@ class Eleve(models.Model):
 
     def __str__(self):
         return self.nom
+
+class Payement(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    eleve = models.ForeignKey(Eleve, on_delete=models.CASCADE)
+    type_entree = models.IntegerField(default=-1, choices=TYPES_ENTREES.choices)
+    montant = models.CharField(max_length = 20,null=True,blank=True)
+    motif = models.CharField(max_length = 20,null=True,blank=True)
+    trimestre = models.CharField(max_length=50, null=True, blank=True)
+    date = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.eleve
 
 class Entree(models.Model):
     id = models.BigAutoField(primary_key=True)
